@@ -57,9 +57,35 @@ gulp.task('sass', function () {
       ))
       .pipe(minifycss())                                //压缩css
       .pipe(gulp.dest(target.css_dest))                 //将压缩后的css放入指定的位置
-      .pipe(notify({message: 'SCSS 处理完成'}));         //通知OSX，任务已经完成
+      .pipe(notify({message: 'SCSS编译处理完成!'}));      //通知OSX，任务已经完成
 });
 
 /*******************************************************************************************
 4. JS Task
 *******************************************************************************************/
+
+gulp.task('js-lint', function () {                      //lint
+  gulp.src(target.js_lint_src)
+      .pipe(jshint())
+      .pipe(jshint.reporter(stylish));                  //在shell中以一种优雅的方式展示
+});
+
+gulp.task('js-uglify', function () {                    //压缩所有将要被连接的js
+  gulp.src(target.js_uglify_src)
+      .pipe(uglify())
+      .pipe(rename(function (dir, base, ext) {          //压缩后的文件加后缀名
+        var trunc = base.split('.')[0];
+        return trunc + '.min' + ext;
+      }))
+      .pipe(gulp.dest(target.js_dest))
+      .pipe(notify({message: 'JS压缩处理完成!'}));
+});
+
+gulp.task('js-concat', function () {                    //压缩连接其他的js
+  gulp.src(target.js_concat_src)
+      .pipe(uglify())
+      .pipe(concat('scripts.min.js'))                   //连接成一个文件
+      .pipe(gulp.dest(target.js_dest))
+      .pipe(notify({message: '压缩连接处理完成!'}));
+});
+
