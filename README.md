@@ -1,7 +1,7 @@
-###Gulp Workflow
+###Gulp 工作流
 
 
-####Skeleton
+#### 1.结构图
 
     ---|
        |---public(assets)
@@ -26,6 +26,6 @@
               |---package.json
               |---gulpfile.js
               
-####gulpfile.js配置
+#### 2. gulpfile.js配置
 
 详见[gulpfile.js](./gulpfile.js)
