@@ -25,3 +25,7 @@
                    |--- ...
               |---package.json
               |---gulpfile.js
+              
+####gulpfile.js配置
+
+详见[gulpfile.js](./gulpfile.js)

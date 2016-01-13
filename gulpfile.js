@@ -106,11 +106,11 @@ gulp.task('browser-sync', function () {
 6. Gulp Tasks
 *******************************************************************************************/
 
-gulp.task('default', function () {
+gulp.task('default', function () {                     //gulp默认任务
   gulp.run('sass', 'js-lint', 'js-uglify', 'js-concat', 'browser-sync');
   
-  gulp.watch('scss/**/*.scss', function () {
-    gulp.run('sass');
+  gulp.watch('scss/**/*.scss', function () {           //观察制定目录下面的文件
+    gulp.run('sass');                                  //如果有变化,运行任务
   });
   
   gulp.watch(target.js_lint_src, function () {
