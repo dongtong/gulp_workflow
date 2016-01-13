@@ -101,3 +101,27 @@ gulp.task('browser-sync', function () {
     }
   });
 });
+
+/*******************************************************************************************
+6. Gulp Tasks
+*******************************************************************************************/
+
+gulp.task('default', function () {
+  gulp.run('sass', 'js-lint', 'js-uglify', 'js-concat', 'browser-sync');
+  
+  gulp.watch('scss/**/*.scss', function () {
+    gulp.run('sass');
+  });
+  
+  gulp.watch(target.js_lint_src, function () {
+    gulp.run('js-lint');
+  });
+  
+  gulp.watch(target.js_minify_src, function () {
+    gulp.run('js-uglify');
+  });
+  
+  gulp.watch(target.js_concat_src, function () {
+    gulp.run('js-concat');
+  });
+});
