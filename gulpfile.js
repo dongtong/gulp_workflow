@@ -11,10 +11,11 @@ var gulp = require('gulp'),                               //gulp核心
     notify = require('gulp-notify'),                      //发送通知給OSX(如果你使用的是苹果操作系统)
     plumber = require('gulp-plumber'),                    //禁止gulp插件发生错误时,中断pipe
     stylish = require('gulp-stylish'),                    //格式化错误信息,使其在shell中可读性更强
-    minifycss = require('gulp-minify-css'),               //压缩css文件
+    cssnano = require('gulp-cssnano'),                    //压缩css文件
     browserSync = require('browser-sync'),                //注入代码到所有文件中
     base64 = require('gulp-base64'),                      //图片base64编码
-    autoprefixer = require('gulp-autoprefixer');          //设置浏览器前缀
+    autoprefixer = require('gulp-autoprefixer'),          //设置浏览器前缀
+    htmlmin = require('gulp-html-minifier');              //压缩html
     
 
 /*******************************************************************************************
@@ -22,24 +23,17 @@ var gulp = require('gulp'),                               //gulp核心
 *******************************************************************************************/
 
 var target = {
-  sass_src : 'scss/**/*.scss',                           //sass目录
-  css_dest : 'css',                                      //压缩后css目录
-  js_lint_src : [                                        //检查js文件列表
-    'js/build/app.js',
-    'js/build/custom/switch.js',
-    'js/build/custom/scheme-loader.js'
-  ],
-  js_uglify_src : [                                      //列举js文件不被链接而是压缩
-    'js/build/custom/scheme-loader.js',
-    'js/build/vendor/modernizr.js'
-  ],
-  js_concat_src : [                                      //拼接js列表
-    'js/build/vendor/skrollr.js',
-    'js/build/vendor/jquery.js'
-  ],
-  js_dest : 'js'                                         //压缩后js目录
-}
-
+  sass_src : 'src/scss/**/*.scss',                           //sass目录
+  css_dest : 'build/css',                                //压缩后css目录
+  js_lint_src : 'src/js/**/*.js',                        //检查js文件列表
+  js_uglify_src : 'src/js/*.js',                         //列举js文件不被链接而是压缩
+  js_concat_src : 'src/js/*.js',                         //不使用模块模式时链接
+  js_dest : 'build/js',                                  //压缩后js目录
+  html_src : 'src/*.html',                               //原html目录
+  html_dest : 'build',                                   //压缩后html目录
+  image_src : 'src/images',
+  image_dest : 'build/images'
+};
 
 /*******************************************************************************************
   base64 config
@@ -82,7 +76,7 @@ gulp.task('sass', function () {
         'ios 6',
         'android 4'
       ))
-      .pipe(minifycss())                                //压缩css
+      .pipe(cssnano())                                  //压缩css
       .pipe(gulp.dest(target.css_dest))                 //将压缩后的css放入指定的位置
       .pipe(notify({message: 'SCSS编译处理完成!'}));      //通知OSX，任务已经完成
 });
@@ -130,25 +124,38 @@ gulp.task('browser-sync', function () {
 });
 
 /*******************************************************************************************
+  HTML Task
+*******************************************************************************************/
+
+gulp.task('html-mini', function () {
+  gulp.src(target.html_src)
+      .pipe(htmlmin({collapseWhitespace: true}))
+      .pipe(gulp.dest(target.html_dest));
+});
+
+/*******************************************************************************************
+  Image Task (gulp-image注意压缩图片质量)
+*******************************************************************************************/
+
+gulp.task('image', function () {
+  gulp.src(target.image_src)
+      .pipe(gulp.dest(target.image_dest));
+});
+
+/*******************************************************************************************
   Gulp Tasks
 *******************************************************************************************/
 
-gulp.task('default', function () {                     //gulp默认任务
-  gulp.run('sass', 'js-lint', 'js-uglify', 'js-concat', 'browser-sync');
+gulp.task('watch', ['browser-sync'], function () {
   
-  gulp.watch('scss/**/*.scss', function () {           //观察制定目录下面的文件
-    gulp.run('sass');                                  //如果有变化,运行任务
-  });
+  gulp.watch(target.sass_src, ['sass']);
   
-  gulp.watch(target.js_lint_src, function () {
-    gulp.run('js-lint');
-  });
+  gulp.watch(target.js_lint_src, ['js-lint']);
   
-  gulp.watch(target.js_minify_src, function () {
-    gulp.run('js-uglify');
-  });
+  gulp.watch(target.js_minify_src, ['js-uglify']);
   
-  gulp.watch(target.js_concat_src, function () {
-    gulp.run('js-concat');
-  });
+  gulp.watch(target.js_concat_src, ['js-concat']);
+  
 });
+
+gulp.task('default', ['sass', 'js-lint', 'js-uglify', 'html-mini', 'image', 'browser-sync', 'watch']);
