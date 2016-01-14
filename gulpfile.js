@@ -12,7 +12,7 @@ var gulp = require('gulp'),                               //gulp核心
     plumber = require('gulp-plumber'),                    //禁止gulp插件发生错误时,中断pipe
     stylish = require('jshint-stylish'),                  //格式化错误信息,使其在shell中可读性更强
     cssnano = require('gulp-cssnano'),                    //压缩css文件
-    browserSync = require('browser-sync'),                //注入代码到所有文件中
+    browserSync = require('browser-sync'),                //注入代码到所有文件中(https://browsersync.io/docs/options/)
     base64 = require('gulp-base64'),                      //图片base64编码
     autoprefixer = require('gulp-autoprefixer'),          //设置浏览器前缀
     htmlmin = require('gulp-html-minifier');              //压缩html
@@ -131,6 +131,7 @@ gulp.task('js-concat', function () {                    //压缩连接其他的j
 
 gulp.task('browser-sync', function () {
   browserSync.create().init({
+    notify: false,                                     //浏览器上不显示通知信息
     browser: "google chrome",                          //默认使用chrome浏览器
     server: {
       baseDir: 'build'                                 //服务默认路径
