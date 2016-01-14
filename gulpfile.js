@@ -131,7 +131,7 @@ gulp.task('js-concat', function () {                    //压缩连接其他的j
 
 gulp.task('browser-sync', function () {
   browserSync.create().init({
-    browser: "google chrome",
+    browser: "google chrome",                          //默认使用chrome浏览器
     server: {
       baseDir: 'build'                                 //服务默认路径
     },
