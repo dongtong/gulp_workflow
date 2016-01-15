@@ -1,5 +1,7 @@
-var util = module.exports = {
+'use strict';
+
+module.exports = {
   greet: function () {
     console.log('Hello Gulp!');
   }
-}
+};

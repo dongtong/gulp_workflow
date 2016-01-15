@@ -15,7 +15,11 @@ var gulp = require('gulp'),                               //gulp核心
     browserSync = require('browser-sync'),                //注入代码到所有文件中(https://browsersync.io/docs/options/)
     base64 = require('gulp-base64'),                      //图片base64编码
     autoprefixer = require('gulp-autoprefixer'),          //设置浏览器前缀
-    htmlmin = require('gulp-html-minifier');              //压缩html
+    htmlmin = require('gulp-html-minifier'),              //压缩html
+    browserify = require('browserify'),                   //browserify引入CommonJS规范
+    source = require('vinyl-source-stream'),              //将常规流转换为包含 Stream 的 vinyl 对象
+    glob = require('glob'),                               //把多个文件添加到 browserify 中
+    buffer = require('vinyl-buffer');                     //将 vinyl 对象内容中的 Stream 转换为 Buffer
     
 
 /*******************************************************************************************
@@ -32,7 +36,7 @@ var target = {
   js_dest : 'build/js',                                  //压缩后js目录
   html_src : 'src/*.html',                               //原html目录
   html_dest : 'build',                                   //压缩后html目录
-  image_src : 'src/images',
+  image_src : 'src/images/*.*',
   image_dest : 'build/images'
 };
 
@@ -107,14 +111,24 @@ gulp.task('js-lint', function () {                      //lint
       .pipe(notify({message: 'jshint处理完成!'}));
 });
 
-gulp.task('js-uglify', function () {                    //压缩所有将要被连接的js
-  gulp.src(target.js_uglify_src)
-      .pipe(uglify())
-      .pipe(rename(function (path) {                    //压缩后的文件加后缀名
-        path.extname = '.min' + path.extname;
-      }))
-      .pipe(gulp.dest(target.js_dest))
-      .pipe(notify({message: 'JS压缩处理完成!'}));
+gulp.task('js-bundle', function () {                    //browserify, uglify
+  glob(target.js_uglify_src, {}, function(err, files) {
+    var b = browserify();
+    files.forEach(function(file) {
+      b.add(file);
+    });
+    
+    b.bundle()
+     .pipe(source('bundle.js'))
+     .pipe(buffer())
+     .pipe(uglify())
+     .pipe(rename(function (path) {                    //压缩后的文件加后缀名
+       path.extname = '.min' + path.extname;
+     }))
+     .pipe(gulp.dest(target.js_dest))
+     .pipe(notify({message: 'JS压缩处理完成!'}));
+  });
+
 });
 
 gulp.task('js-concat', function () {                    //压缩连接其他的js
@@ -178,7 +192,7 @@ gulp.task('watch', ['browser-sync'], function () {
   
   gulp.watch(target.js_lint_src, ['js-lint']);
   
-  gulp.watch(target.js_minify_src, ['js-uglify']);
+  gulp.watch(target.js_minify_src, ['js-bundle']);
   
   gulp.watch(target.js_concat_src, ['js-concat']);
   
@@ -191,7 +205,7 @@ gulp.task('watch', ['browser-sync'], function () {
 gulp.task('default', [
   'css', 
   'js-lint', 
-  'js-uglify', 
+  'js-bundle', 
   'html-mini', 
   'image', 
   'browser-sync', 
